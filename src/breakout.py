@@ -9,13 +9,23 @@ def main():
     pygame.init()
     screen = pygame.display.set_mode(SCR_RECT.size)
     pygame.display.set_caption(u"ブロック崩し")
-    
+
+    # BGMを再生
+    # MFP【Marron Fields Production】
+    pygame.mixer.music.load("sound/Curious_Boy.mp3")
+    pygame.mixer.music.play(-1)
+
     # スプライトグループを作成して登録
     all = pygame.sprite.RenderUpdates()  # 描画用グループ
     blocks = pygame.sprite.Group()       # 衝突判定用グループ
     Paddle.containers = all
     Ball.containers = all
     Block.containers = all, blocks
+
+    # サウンドのロード
+    Ball.paddle_sound = load_sound("wood00.wav")  # パドルとの衝突音
+    Ball.brick_sound = load_sound("chari06.wav")  # ブロックとの衝突音
+    Ball.fall_sound = load_sound("fall06.wav")    # ボールを落とした音
 
     # パドルを作成
     paddle = Paddle()
@@ -91,9 +101,11 @@ class Ball(pygame.sprite.Sprite):
         # パドルとの反射
         if self.rect.colliderect(self.paddle.rect) and self.dy > 0:
             self.dy = -self.dy
+            self.paddle_sound.play()
         # ボールを落とした場合
         if self.rect.top > SCR_RECT.bottom:
             self.update = self.start  # ボールを初期状態に
+            self.fall_sound.play()
 
         # ブロックを壊す
         # ボールと衝突したブロックリストを取得
@@ -117,6 +129,7 @@ class Ball(pygame.sprite.Sprite):
                 if brick.rect.top < oldrect.top < brick.rect.bottom < oldrect.bottom:
                     self.rect.top = brick.rect.bottom
                     self.dy = -self.dy
+                self.brick_sound.play()
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -140,6 +153,10 @@ def load_image(filename, colorkey=None):
             colorkey = image.get_at((0,0))
         image.set_colorkey(colorkey, RLEACCEL)
     return image, image.get_rect()
+
+def load_sound(filename):
+    filename = os.path.join("sound", filename)
+    return pygame.mixer.Sound(filename)
 
 if __name__ == "__main__":
     main()
