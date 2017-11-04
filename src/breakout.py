@@ -1,9 +1,10 @@
 import pygame
 from pygame.locals import *
-import os
 import sys
 import math
 import random
+import block
+import loader
 
 SCR_RECT = Rect(0, 0, 372, 384)
 
@@ -39,7 +40,7 @@ def gameoverView(screen):
 
 def initView(screen):
     global game_state
-    title, title_rect = load_image("title.png")
+    title, title_rect = loader.load_image("title.png")
     screen.blit(title, (0, 0))
     pygame.display.update()
     while game_state == START:
@@ -64,11 +65,11 @@ def breakout(screen):
     blocks = pygame.sprite.Group()       # 衝突判定用グループ
     Paddle.containers = all
     Ball.containers = all
-    Block.containers = all, blocks
+    block.Block.containers = all, blocks
     # サウンドのロード
-    Ball.paddle_sound = load_sound("wood00.wav")  # パドルとの衝突音
-    Ball.brick_sound = load_sound("chari06.wav")  # ブロックとの衝突音
-    Ball.fall_sound = load_sound("fall06.wav")    # ボールを落とした音
+    Ball.paddle_sound = loader.load_sound("wood00.wav")  # パドルとの衝突音
+    Ball.brick_sound = loader.load_sound("chari06.wav")  # ブロックとの衝突音
+    Ball.fall_sound = loader.load_sound("fall06.wav")    # ボールを落とした音
 
     score_board = ScoreBoard()
 
@@ -80,7 +81,7 @@ def breakout(screen):
     # 自動的にblocksグループに追加される
     for x in range(1, 11):  # 1列から10列まで
         for y in range(1, 6):  # 1行から5行まで
-            Block(x, y)
+            block.Block(SCR_RECT.left, SCR_RECT.top, x, y)
 
     clock = pygame.time.Clock()
     while game_state == PLAY:
@@ -103,7 +104,7 @@ class Paddle(pygame.sprite.Sprite):
     def __init__(self):
         # containersはmain()でセットされる
         pygame.sprite.Sprite.__init__(self, self.containers)
-        self.image, self.rect = load_image("paddle.png")
+        self.image, self.rect = loader.load_image("paddle.png")
         self.rect.bottom = SCR_RECT.bottom - 10  # パドルは画面の一番下から少し隙間を開けた.
     def update(self):
         self.rect.centerx = pygame.mouse.get_pos()[0]  # パドルの中央のX座標=マウスのX座標
@@ -117,7 +118,7 @@ class Ball(pygame.sprite.Sprite):
     __hit = 0
     def __init__(self, paddle, blocks, score_board):
         pygame.sprite.Sprite.__init__(self, self.containers)
-        self.image, self.rect = load_image("ball.png")
+        self.image, self.rect = loader.load_image("ball.png")
         self.dx = self.dy = 0  # ボールの速度
         self.paddle = paddle  # パドルへの参照
         self.blocks = blocks  # blocksへの参照.
@@ -208,13 +209,6 @@ class Ball(pygame.sprite.Sprite):
                 self.__hit += 1
                 self.score_board.add_score(self.__hit * 10)
 
-class Block(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        pygame.sprite.Sprite.__init__(self, self.containers)
-        self.image, self.rect = load_image("brick.png")
-        # ブロックの位置を更新
-        self.rect.left = SCR_RECT.left + x * self.rect.width
-        self.rect.top = SCR_RECT.top + y * self.rect.height
 
 class ScoreBoard():
     """スコアボード"""
@@ -234,24 +228,6 @@ class ScoreBoard():
     def add_score(self, x):
         self.score += x
 
-def load_image(filename, colorkey=None):
-    """画像をロードして画像と矩形を返す"""
-    filename = os.path.join("img", filename)
-    try:
-        image = pygame.image.load(filename)
-    except pygame.error as message:
-        print ("Cannot load image:", filename)
-        raise SystemExit(message)
-    image = image.convert()
-    if colorkey is not None:
-        if colorkey is -1:
-            colorkey = image.get_at((0,0))
-        image.set_colorkey(colorkey, RLEACCEL)
-    return image, image.get_rect()
-
-def load_sound(filename):
-    filename = os.path.join("sound", filename)
-    return pygame.mixer.Sound(filename)
 
 if __name__ == "__main__":
     main()
