@@ -9,6 +9,7 @@ SCR_RECT = Rect(0, 0, 372, 384)
 
 START, PLAY, GAMEOVER = (0, 1, 2)  # ゲーム状態
 game_state = START
+life = 3
 
 def main():
     pygame.init()
@@ -140,7 +141,7 @@ class Ball(pygame.sprite.Sprite):
                 self.update = self.move
 
     def move(self):
-        global game_state
+        global game_state, life
         """ボールの移動"""
         self.rect.centerx += self.dx
         self.rect.centery += self.dy
@@ -176,7 +177,9 @@ class Ball(pygame.sprite.Sprite):
             # ボールを落としたら-30点
             self.__hit = 0
             self.score_board.add_score(-30)
-            game_state = GAMEOVER
+            life-=1
+            if life == 0:
+                game_state = GAMEOVER
 
         # ブロックを壊す
         # ボールと衝突したブロックリストを取得
@@ -216,10 +219,15 @@ class Block(pygame.sprite.Sprite):
 class ScoreBoard():
     """スコアボード"""
     def __init__(self):
-        self.sysfont = pygame.font.SysFont(None, 30)
+        self.scorefont = pygame.font.SysFont(None, 40)
+        self.lifefont = pygame.font.SysFont(None, 20)
         self.score = 0
     def draw(self, screen):
-        score_img = self.sysfont.render(str(self.score), True, (255,255,0))
+        global life
+        life_img = self.lifefont.render("at "+str(life), True, (255,255,255))
+        screen.blit(life_img, (2, 2))
+
+        score_img = self.scorefont.render(str(self.score), True, (255,255,0))
         x = (SCR_RECT.size[0] - score_img.get_width()) / 2
         y = (SCR_RECT.size[1] - score_img.get_height()) / 2
         screen.blit(score_img, (x, y))
