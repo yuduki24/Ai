@@ -23,16 +23,17 @@ def main():
     Paddle.containers = all
     Ball.containers = all
     Block.containers = all, blocks
-
     # サウンドのロード
     Ball.paddle_sound = load_sound("wood00.wav")  # パドルとの衝突音
     Ball.brick_sound = load_sound("chari06.wav")  # ブロックとの衝突音
     Ball.fall_sound = load_sound("fall06.wav")    # ボールを落とした音
 
+    score_board = ScoreBoard()
+
     # パドルを作成
     paddle = Paddle()
     # ボールを作成するとスプライトグループallに自動的に追加される
-    Ball(paddle, blocks)
+    Ball(paddle, blocks, score_board)
     # ブロックを作成
     # 自動的にblocksグループに追加される
     for x in range(1, 11):  # 1列から10列まで
@@ -45,6 +46,7 @@ def main():
         screen.fill((0,0,0))
         all.update()
         all.draw(screen)
+        score_board.draw(screen)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -70,12 +72,14 @@ class Ball(pygame.sprite.Sprite):
     __speed = 7
     __angle_left = 150
     __angle_right = 30
-    def __init__(self, paddle, blocks):
+    __hit = 0
+    def __init__(self, paddle, blocks, score_board):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image, self.rect = load_image("ball.png")
         self.dx = self.dy = 0  # ボールの速度
         self.paddle = paddle  # パドルへの参照
         self.blocks = blocks  # blocksへの参照.
+        self.score_board = score_board
         self.update = self.start
     def start(self):
         """ボールの位置を初期化"""
@@ -106,6 +110,7 @@ class Ball(pygame.sprite.Sprite):
             self.dy = -self.dy
         # パドルとの反射
         if self.rect.colliderect(self.paddle.rect) and self.dy > 0:
+            self.__hit = 0  # 連続ヒットを0に戻す
             # パドルの左端に当たったとき135度方向、右端で45度方向とし、
             # その間は線形補間で反射方向を計算
             x1 = self.paddle.rect.left - self.rect.width  # ボールが当たる左端
@@ -122,6 +127,9 @@ class Ball(pygame.sprite.Sprite):
         if self.rect.top > SCR_RECT.bottom:
             self.update = self.start  # ボールを初期状態に
             self.fall_sound.play()
+            # ボールを落としたら-30点
+            self.__hit = 0
+            self.score_board.add_score(-30)
 
         # ブロックを壊す
         # ボールと衝突したブロックリストを取得
@@ -146,6 +154,9 @@ class Ball(pygame.sprite.Sprite):
                     self.rect.top = brick.rect.bottom
                     self.dy = -self.dy
                 self.brick_sound.play()
+                # 点数を追加
+                self.__hit += 1
+                self.score_board.add_score(self.__hit * 10)
 
 class Block(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -154,6 +165,19 @@ class Block(pygame.sprite.Sprite):
         # ブロックの位置を更新
         self.rect.left = SCR_RECT.left + x * self.rect.width
         self.rect.top = SCR_RECT.top + y * self.rect.height
+
+class ScoreBoard():
+    """スコアボード"""
+    def __init__(self):
+        self.sysfont = pygame.font.SysFont(None, 80)
+        self.score = 0
+    def draw(self, screen):
+        score_img = self.sysfont.render(str(self.score), True, (255,255,0))
+        x = (SCR_RECT.size[0] - score_img.get_width()) / 2
+        y = (SCR_RECT.size[1] - score_img.get_height()) / 2
+        screen.blit(score_img, (x, y))
+    def add_score(self, x):
+        self.score += x
 
 def load_image(filename, colorkey=None):
     """画像をロードして画像と矩形を返す"""
