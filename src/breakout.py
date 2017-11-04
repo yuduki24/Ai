@@ -3,6 +3,7 @@ from pygame.locals import *
 import os
 import sys
 import math
+import random
 
 SCR_RECT = Rect(0, 0, 372, 384)
 
@@ -66,7 +67,7 @@ class Paddle(pygame.sprite.Sprite):
 
 class Ball(pygame.sprite.Sprite):
     """ボール"""
-    __speed = 10
+    __speed = 7
     __angle_left = 150
     __angle_right = 30
     def __init__(self, paddle, blocks):
@@ -83,8 +84,10 @@ class Ball(pygame.sprite.Sprite):
         self.rect.bottom = self.paddle.rect.top
         # 左クリックで移動開始
         if pygame.mouse.get_pressed()[0] == 1:
-            self.dx = self.__speed
-            self.dy = -self.__speed
+            ran = random.randint(45, 135)
+            angle = math.radians(ran)
+            self.dx = self.__speed * math.cos(angle)  # float
+            self.dy = -self.__speed * math.sin(angle) # float
             # update()をmove()に置き換え
             self.update = self.move
     def move(self):
