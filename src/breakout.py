@@ -5,9 +5,7 @@ import breakout_obj
 import loader
 
 SCR_RECT = Rect(0, 0, 372, 384)
-
 START, PLAY, GAMEOVER = (0, 1, 2)  # ゲーム状態
-life = breakout_obj.life
 
 def main():
     pygame.init()
@@ -49,9 +47,7 @@ def initView(screen):
 def breakout(screen):
     # BGMを再生
     # MFP【Marron Fields Production】
-    pygame.mixer.music.load("sound/Curious_Boy.mp3")
-    pygame.mixer.music.play(-1)
-
+    loader.play_sound("Curious_Boy.mp3", -1)
     # スプライトグループを作成して登録
     all = pygame.sprite.RenderUpdates()  # 描画用グループ
     blocks = pygame.sprite.Group()       # 衝突判定用グループ
@@ -91,8 +87,6 @@ def breakout(screen):
             if event.type == KEYDOWN and event.key == K_ESCAPE:
                 pygame.quit()
                 sys.exit()
-
-
 
 if __name__ == "__main__":
     main()
