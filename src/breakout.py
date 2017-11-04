@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import os
 import sys
+import math
 
 SCR_RECT = Rect(0, 0, 372, 384)
 
@@ -65,7 +66,9 @@ class Paddle(pygame.sprite.Sprite):
 
 class Ball(pygame.sprite.Sprite):
     """ボール"""
-    speed = 5
+    __speed = 10
+    __angle_left = 150
+    __angle_right = 30
     def __init__(self, paddle, blocks):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image, self.rect = load_image("ball.png")
@@ -80,8 +83,8 @@ class Ball(pygame.sprite.Sprite):
         self.rect.bottom = self.paddle.rect.top
         # 左クリックで移動開始
         if pygame.mouse.get_pressed()[0] == 1:
-            self.dx = self.speed
-            self.dy = -self.speed
+            self.dx = self.__speed
+            self.dy = -self.__speed
             # update()をmove()に置き換え
             self.update = self.move
     def move(self):
@@ -100,8 +103,18 @@ class Ball(pygame.sprite.Sprite):
             self.dy = -self.dy
         # パドルとの反射
         if self.rect.colliderect(self.paddle.rect) and self.dy > 0:
-            self.dy = -self.dy
-            self.paddle_sound.play()
+            # パドルの左端に当たったとき135度方向、右端で45度方向とし、
+            # その間は線形補間で反射方向を計算
+            x1 = self.paddle.rect.left - self.rect.width  # ボールが当たる左端
+            y1 = self.__angle_left  # 左端での反射方向（135度）
+            x2 = self.paddle.rect.right  # ボールが当たる右端
+            y2 = self.__angle_right  # 右端での反射方向（45度）
+            m = float(y2-y1) / (x2-x1)  # 直線の傾き
+            x = self.rect.left  # ボールが当たった位置
+            y = m * (x - x1) + y1
+            angle = math.radians(y)
+            self.dx = self.__speed * math.cos(angle)  # float
+            self.dy = -self.__speed * math.sin(angle) # float
         # ボールを落とした場合
         if self.rect.top > SCR_RECT.bottom:
             self.update = self.start  # ボールを初期状態に
