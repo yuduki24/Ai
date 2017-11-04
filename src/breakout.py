@@ -72,6 +72,7 @@ def breakout(screen):
         for y in range(1, 6):  # 1行から5行まで
             breakout_obj.Block(x, y)
 
+    breakout_obj.life = 3
     clock = pygame.time.Clock()
     while breakout_obj.game_state == PLAY:
         clock.tick(60)

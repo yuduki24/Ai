@@ -1,11 +1,11 @@
 import pygame
 from pygame.locals import *
 import os
-
+import sys
 
 
 def load_image(filename, colorkey=None):
-    current_dir = os.path.abspath(os.path.dirname(__file__))  # スクリプトのディレクトリ
+    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))  # スクリプトのディレクトリ
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))  # スクリプトの親ディレクトリ
     """画像をロードして画像と矩形を返す"""
     filename = os.path.join("img", filename)
@@ -23,14 +23,14 @@ def load_image(filename, colorkey=None):
     return image, image.get_rect()
 
 def load_sound(filename):
-    current_dir = os.path.abspath(os.path.dirname(__file__))  # スクリプトのディレクトリ
+    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))  # スクリプトのディレクトリ
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))  # スクリプトの親ディレクトリ
     filename = os.path.join("sound", filename)
     filename = os.path.join(parent_dir, filename)
     return pygame.mixer.Sound(filename)
 
 def play_sound(filename, repeat=None):
-    current_dir = os.path.abspath(os.path.dirname(__file__))  # スクリプトのディレクトリ
+    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))  # スクリプトのディレクトリ
     parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))  # スクリプトの親ディレクトリ
     filename = os.path.join("sound", filename)
     filename = os.path.join(parent_dir, filename)
