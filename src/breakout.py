@@ -17,6 +17,24 @@ def main():
     while True:
         initView(screen)
         breakout(screen)
+        gameoverView(screen)
+
+def gameoverView(screen):
+    global game_state
+    screen.fill((0,0,0))
+    sysfont = pygame.font.SysFont(None, 80)
+    score_img = sysfont.render("GAME OVER", True, (255,255,0))
+    x = (SCR_RECT.size[0] - score_img.get_width()) / 2
+    y = (SCR_RECT.size[1] - score_img.get_height()) / 2
+    screen.blit(score_img, (x, y))
+    pygame.display.update()
+    while game_state == GAMEOVER:
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYDOWN and event.key == K_SPACE:
+                game_state = START
 
 def initView(screen):
     global game_state
@@ -34,7 +52,7 @@ def initView(screen):
 
     
 def breakout(screen):
-
+    global game_state
     # BGMを再生
     # MFP【Marron Fields Production】
     pygame.mixer.music.load("sound/Curious_Boy.mp3")
@@ -64,7 +82,7 @@ def breakout(screen):
             Block(x, y)
 
     clock = pygame.time.Clock()
-    while True:
+    while game_state == PLAY:
         clock.tick(60)
         screen.fill((0,0,0))
         all.update()
@@ -109,15 +127,20 @@ class Ball(pygame.sprite.Sprite):
         # パドルの中央に配置
         self.rect.centerx = self.paddle.rect.centerx
         self.rect.bottom = self.paddle.rect.top
-        # 左クリックで移動開始
-        if pygame.mouse.get_pressed()[0] == 1:
-            ran = random.randint(45, 135)
-            angle = math.radians(ran)
-            self.dx = self.__speed * math.cos(angle)  # float
-            self.dy = -self.__speed * math.sin(angle) # float
-            # update()をmove()に置き換え
-            self.update = self.move
+
+        #スペースで発射.
+        for event in pygame.event.get():
+            if event.type == KEYDOWN and event.key == K_SPACE:
+                game_state = PLAY
+                ran = random.randint(45, 135)
+                angle = math.radians(ran)
+                self.dx = self.__speed * math.cos(angle)  # float
+                self.dy = -self.__speed * math.sin(angle) # float
+                # update()をmove()に置き換え
+                self.update = self.move
+
     def move(self):
+        global game_state
         """ボールの移動"""
         self.rect.centerx += self.dx
         self.rect.centery += self.dy
@@ -153,6 +176,7 @@ class Ball(pygame.sprite.Sprite):
             # ボールを落としたら-30点
             self.__hit = 0
             self.score_board.add_score(-30)
+            game_state = GAMEOVER
 
         # ブロックを壊す
         # ボールと衝突したブロックリストを取得
