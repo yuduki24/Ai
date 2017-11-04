@@ -7,30 +7,33 @@ import random
 
 SCR_RECT = Rect(0, 0, 372, 384)
 
+START, PLAY, GAMEOVER = (0, 1, 2)  # ゲーム状態
+game_state = START
+
 def main():
     pygame.init()
     pygame.display.set_caption(u"ブロック崩し")
     screen = pygame.display.set_mode(SCR_RECT.size)
     while True:
         initView(screen)
-        mainSystem(screen)
+        breakout(screen)
 
 def initView(screen):
+    global game_state
     title, title_rect = load_image("title.png")
-    start_button, start_button_rect = load_image("start_button.png")
     screen.blit(title, (0, 0))
-    screen.blit(start_button, (265,250))
     pygame.display.update()
-    while True:
+    while game_state == START:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN and event.key == K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+            if event.type == KEYDOWN and event.key == K_SPACE:
+                game_state = PLAY
+
+
     
-def mainSystem(screen):
+def breakout(screen):
 
     # BGMを再生
     # MFP【Marron Fields Production】
