@@ -19,4 +19,6 @@ def load_image(filename, colorkey=None):
 
 def load_sound(filename):
     filename = os.path.join("sound", filename)
+
+    print(filename)
     return pygame.mixer.Sound(filename)
