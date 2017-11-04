@@ -38,3 +38,10 @@ def play_sound(filename, repeat=None):
     if repeat is not None:
         if repeat is -1:
             pygame.mixer.music.play(-1)
+
+def load_font(fontname, size):
+    current_dir = os.path.abspath(os.path.dirname(sys.argv[0]))  # スクリプトのディレクトリ
+    parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))  # スクリプトの親ディレクトリ
+    fontname = os.path.join("font", fontname)
+    fontname = os.path.join(parent_dir, fontname)
+    return pygame.font.Font(fontname, size)

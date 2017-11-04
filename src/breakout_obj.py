@@ -133,14 +133,16 @@ class Ball(pygame.sprite.Sprite):
 class ScoreBoard():
     """スコアボード"""
     def __init__(self):
-        self.scorefont = pygame.font.SysFont(None, 40)
-        self.lifefont = pygame.font.SysFont(None, 20)
+        #self.scorefont = pygame.font.SysFont(None, 40)
+        self.scorefont = loader.load_font("ipag.ttf", 30)
+        #self.lifefont = pygame.font.SysFont(None, 20)
+        self.lifefont = loader.load_font("ipag.ttf", 15)
         self.score = 0
     def draw(self, screen):
         global life
         life_img = self.lifefont.render("at "+str(life), True, (255,255,255))
         screen.blit(life_img, (2, 2))
-
+        
         score_img = self.scorefont.render(str(self.score), True, (255,255,0))
         x = (SCR_RECT.size[0] - score_img.get_width()) / 2
         y = (SCR_RECT.size[1] - score_img.get_height()) / 2

@@ -11,6 +11,9 @@ def main():
     pygame.init()
     pygame.display.set_caption(u"ブロック崩し")
     screen = pygame.display.set_mode(SCR_RECT.size)
+    # BGMを再生
+    # MFP【Marron Fields Production】
+    loader.play_sound("Curious_Boy.mp3", -1)
     while True:
         initView(screen)
         breakout(screen)
@@ -18,7 +21,7 @@ def main():
 
 def gameoverView(screen):
     screen.fill((0,0,0))
-    sysfont = pygame.font.SysFont(None, 80)
+    sysfont = loader.load_font("ipag.ttf", 80)
     score_img = sysfont.render("GAME OVER", True, (255,255,0))
     x = (SCR_RECT.size[0] - score_img.get_width()) / 2
     y = (SCR_RECT.size[1] - score_img.get_height()) / 2
@@ -45,9 +48,6 @@ def initView(screen):
                 breakout_obj.game_state = PLAY
     
 def breakout(screen):
-    # BGMを再生
-    # MFP【Marron Fields Production】
-    loader.play_sound("Curious_Boy.mp3", -1)
     # スプライトグループを作成して登録
     all = pygame.sprite.RenderUpdates()  # 描画用グループ
     blocks = pygame.sprite.Group()       # 衝突判定用グループ
